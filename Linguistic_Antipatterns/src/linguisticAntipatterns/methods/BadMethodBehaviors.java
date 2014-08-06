@@ -2,10 +2,7 @@ package linguisticAntipatterns.methods;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import sie.db.entity.CodeComment;
 import sie.db.entity.Method;
@@ -135,7 +132,8 @@ public class BadMethodBehaviors {
 			 * contenere un termine che suggerisca, come tipo di ritorno, una lista
 			 * di oggetti. 
 			 */
-			if(!methodName.endsWith("s") && !Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
+			if(!methodName.endsWith("s") && 
+					!Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
 //					System.out.println("\tIl nome del metodo " + methodName 
 //							+ " suggerisce che debba essere restituito un unico oggetto, mentre il "
 //							+ "tipo di ritorno è una lista di oggetti.");
@@ -239,7 +237,8 @@ public class BadMethodBehaviors {
 				 * contiene un termine che suggerisce, come tipo di ritorno, una lista
 				 * di oggetti, controllo che restituisca effettivamente una collezione di oggetti.
 				 */
-				if(!methodName.endsWith("s") && !Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
+				if(!methodName.endsWith("s") && 
+						!Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
 					Set<SType> superClasses = mb.getReturnType().getSuperclasses();
 					if(superClasses != null && (superClasses.contains("Collection")
 							|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
