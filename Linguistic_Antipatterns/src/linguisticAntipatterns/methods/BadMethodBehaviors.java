@@ -1,10 +1,13 @@
 package linguisticAntipatterns.methods;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import sie.db.entity.CodeComment;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
 import sie.db.entity.Variable;
@@ -49,10 +52,8 @@ public class BadMethodBehaviors {
 			 * nel metodo get. 
 			 */
 			String regex = "new";
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(code);
 			
-			if (matcher.find()) {
+			if (checkPattern(regex, code, false)) {
 //					System.out.println("\tNel metodo " + methodName 
 //							+ " vengono allocati uno o più oggetti: si consiglia di "
 //							+ "rinominare il metodo in una maniera differente da \"getSomething\".");
@@ -128,15 +129,13 @@ public class BadMethodBehaviors {
 		Set<SType> superClasses = mb.getReturnType().getSuperclasses();
 		if(superClasses != null && (superClasses.contains("Collection")
 				|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
-			Pattern pattern = Pattern.compile(collectionRegex);
-			Matcher matcher = pattern.matcher(methodName);
 			
 			/*
 			 * Il metodo deve terminare per 's' (i.e. plurale) o, comunque, deve 
 			 * contenere un termine che suggerisca, come tipo di ritorno, una lista
 			 * di oggetti. 
 			 */
-			if(!methodName.endsWith("s") && !matcher.find()) {
+			if(!methodName.endsWith("s") && !checkPattern(collectionRegex, methodName, false)) {
 //					System.out.println("\tIl nome del metodo " + methodName 
 //							+ " suggerisce che debba essere restituito un unico oggetto, mentre il "
 //							+ "tipo di ritorno è una lista di oggetti.");
@@ -166,7 +165,98 @@ public class BadMethodBehaviors {
 	 * @return <b>true</b> se il metodo dice più di quel che fa, <b>false</b> altrimenti.
 	 */
 	public static boolean saysMoreThanItDoes(Method mb) {
+		boolean saysMoreThanItDoes = false;
+		String methodName = mb.getName().toLowerCase();
+		String methodReturnType = mb.getReturnType().getName();
 		
+		/*
+		 * Controllo che, nel caso in cui nel commento venga menzionato il controllo di una 
+		 * condizione, la condizione stessa venga effettivamente implementata tramite if, switch, 
+		 * ecc...
+		 */
+		for(CodeComment comment : mb.getComments()) {
+			ArrayList<String> comRegexsList = new ArrayList<String>();
+			ArrayList<String> codeRegexsList = new ArrayList<String>();
+			
+			comRegexsList.add("if");
+			comRegexsList.add("se");
+			comRegexsList.add("else");
+			comRegexsList.add("altrimenti");
+			
+			codeRegexsList.add("if");
+			codeRegexsList.add("switch");
+			
+			if(checkPattern(comRegexsList, comment.getComment(), true)) {
+//				System.out.println("\t\t" + comment.getComment());
+				if(!checkPattern(codeRegexsList, mb.getTextContent(), false)) {
+					saysMoreThanItDoes = true;
+					break;
+				}
+			}
+			
+			/*
+			 * Per controllare se la particolare condizione citata nel commento (nel caso seguente 
+			 * il while) sia stata implementata, le seguenti linee di codice sono indispensabili 
+			 * (i.e., per ciascuna istruzione java è necessario effettuare un controllo per volta,
+			 * altrimenti potrebbe esservi un match anche nel caso in cui nel commento si facesse
+			 * riferimento ad un while mentre viene implementato un if). 
+			 */
+			comRegexsList.clear();
+			codeRegexsList.clear();
+			
+			comRegexsList.add("while");
+			comRegexsList.add("finche'");
+			
+			codeRegexsList.add("while");
+			
+			if(checkPattern(comRegexsList, comment.getComment(), true)) {
+//				System.out.println("\t\t" + comment.getComment());
+				if(!checkPattern(codeRegexsList, mb.getTextContent(), false)) {
+					saysMoreThanItDoes = true;
+					break;
+				}
+			} 
+		}
+		
+		/*
+		 * Se il nome del metodo inizia con "check", controllo che il tipo restituito sia boolean, o 
+		 * che venga lanciata almeno un'eccezione; se comincia con "get", controllo che restituisca 
+		 * qualcosa e, se il nome dopo "get" suggerisce che venga restituita una lista di oggetti,
+		 * che venga restituita effettivamente una lista di oggetti; se invece comincia con "is",
+		 * controllo che venga restituito un boolean; infine, se il nome contiene la parola "to"
+		 * (nè all'inizio nè alla fine della parola stessa), controllo che venga restituito qualcosa. 
+		 *  
+		 */
+		if(methodName.startsWith("check")) {
+			if(!methodReturnType.equalsIgnoreCase("boolean") && mb.getThrowedException().isEmpty())
+				saysMoreThanItDoes = true;
+		} else if(methodName.startsWith("get")) {
+			if(methodReturnType.equals("void"))
+				saysMoreThanItDoes = true;
+			else {
+				/*
+				 * Se il metodo termina per 's' (i.e. plurale) o, comunque, 
+				 * contiene un termine che suggerisce, come tipo di ritorno, una lista
+				 * di oggetti, controllo che restituisca effettivamente una collezione di oggetti.
+				 */
+				if(!methodName.endsWith("s") && !checkPattern(collectionRegex, methodName, false)) {
+					Set<SType> superClasses = mb.getReturnType().getSuperclasses();
+					if(superClasses != null && (superClasses.contains("Collection")
+							|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
+						saysMoreThanItDoes = true;
+					}
+				} 
+			}
+		} else if(methodName.startsWith("is")) {
+			if(!methodReturnType.equalsIgnoreCase("boolean"))
+				saysMoreThanItDoes = true;
+		} else if(methodName.contains("to") &&
+				(!methodName.startsWith("to") && !methodName.endsWith("to"))) {
+			if(methodReturnType.equals("void"))
+				saysMoreThanItDoes = true;
+		}
+		
+		return saysMoreThanItDoes;
 	}
 
 	/**
@@ -184,6 +274,87 @@ public class BadMethodBehaviors {
 
 		return false;
 	}
-
+	
+	/**
+	 * Controlla se la stringa <b>str</b> contiene almeno una espressione regolare contenuta in 
+	 * <b>regexsList</b>. Se <b>wholeWord</b> è <b>true</b>, in <b>str</b>, viene effettuata 
+	 * un'operazione di pulizia iniziale della stringa, al fine di isolare eventuali parole (nel caso
+	 * di stringhe formate da più parole) rispetto le quali andare a controllare il match con le 
+	 * espressioni regolari.
+	 * @param regexsList Una lista di espressioni regolari. 
+	 * @param str La stringa su cui andare a controllare il match. 
+	 * @param wholeWord Se viene settata a <b>true</b>, nel caso in cui in <b>str</b> vi siano più 
+	 * parole, vengono effettuate delle operazioni di pulitura della stringa, per migliorare la 
+	 * qualità della ricerca.  
+	 * @return <b>true</b> se il pattern viene trovato, <b>false</b> altrimenti.
+	 */
+	private static boolean checkPattern(List<String> regexsList, String str, boolean wholeWord) {
+		if(wholeWord) {
+			str.replace(".", " ");
+			str.replace(":", " ");
+			str.replace(",", " ");
+			str.replace(";", " ");
+			str.replace("-", " ");
+			str.replace("_", " ");
+			str.replace("/", " ");
+		}
+		
+		for(String regex : regexsList) {
+			/*
+			 * Se wholeWord è uguale a true, isolo l'espressione regolare e la singola parola 
+			 * nella stringa, al fine di gestire, ad esempio, il caso in cui non venga inserito lo 
+			 * spazio dopo la punteggiatura.  
+			 */
+			if(wholeWord) {
+				regex = "_".concat(regex);
+				regex = regex.concat("_");
+			}
+			
+			for(String cs : str.split(" ")) {
+				if(wholeWord) {
+					cs = "_".concat(cs);
+					cs = cs.concat("_");
+				}
+				
+				if(checkPattern(regex, cs, false))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Controlla se la stringa <b>str</b> contiene l'espressione regolare <b>regex</b>. 
+	 * Se <b>wholeWord</b> è <b>true</b>, in <b>str</b>, viene effettuata 
+	 * un'operazione di pulizia iniziale della stringa, al fine di isolare eventuali parole (nel caso
+	 * di stringhe formate da più parole) rispetto le quali andare a controllare il match con 
+	 * l'espressione regolare.
+	 * @param regex Una espressione regolare. 
+	 * @param str La stringa su cui andare a controllare il match. 
+	 * @param wholeWord Se viene settata a <b>true</b>, nel caso in cui in <b>str</b> vi siano più 
+	 * parole, vengono effettuate delle operazioni di pulitura della stringa, per migliorare la 
+	 * qualità della ricerca.  
+	 * @return <b>true</b> se il pattern viene trovato, <b>false</b> altrimenti.
+	 */
+	private static boolean checkPattern(String regex, String str, boolean wholeWord) {
+		if(wholeWord) {
+			str.replace(".", " ");
+			str.replace(":", " ");
+			str.replace(",", " ");
+			str.replace(";", " ");
+			str.replace("-", " ");
+			str.replace("_", " ");
+			str.replace("/", " ");
+		}
+		
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(str.toString().toLowerCase());
+		
+		if(matcher.find())
+			return true;
+		else
+			return false;
+	}
+	
 	private static final String collectionRegex = "list | collection | map | table"; //da completare con altri nomi che suggeriscano una collezione di oggetti
 }
