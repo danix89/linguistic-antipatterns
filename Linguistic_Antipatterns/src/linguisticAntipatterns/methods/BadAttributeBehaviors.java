@@ -2,6 +2,7 @@ package linguisticAntipatterns.methods;
 
 import java.util.Set;
 
+import linguisticAntipatterns.wordsManipulation.MainWordsManipulation;
 import sie.db.entity.Field;
 import sie.db.entity.SType;
 
@@ -35,7 +36,7 @@ public class BadAttributeBehaviors {
 			 * contenere un termine che suggerisca una lista di oggetti. 
 			 */
 			if(!attributeName.endsWith("s") && 
-					!Utilities.checkPattern(Utilities.collectionRegex, attributeName, false)) {
+					!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, attributeName, false)) {
 				containsMoreThanItSays = true;
 			}
 		} 
@@ -63,7 +64,7 @@ public class BadAttributeBehaviors {
 		 * di oggetti, controllo che contenga effettivamente una collezione di oggetti.
 		 */
 		if(!attributeName.endsWith("s") && 
-				!Utilities.checkPattern(Utilities.collectionRegex, attributeName, false)) {
+				!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, attributeName, false)) {
 			Set<SType> superClasses = f.getType().getSuperclasses();
 			if(superClasses != null && (superClasses.contains("Collection")
 					|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {

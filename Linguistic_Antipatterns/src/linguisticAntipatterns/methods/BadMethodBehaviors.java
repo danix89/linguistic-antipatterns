@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import linguisticAntipatterns.wordsManipulation.MainWordsManipulation;
 import sie.db.entity.CodeComment;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
@@ -50,7 +51,7 @@ public class BadMethodBehaviors {
 			 */
 			String regex = "new";
 			
-			if (Utilities.checkPattern(regex, code, false)) {
+			if (MainWordsManipulation.checkPattern(regex, code, false)) {
 //					System.out.println("\tNel metodo " + methodName 
 //							+ " vengono allocati uno o più oggetti: si consiglia di "
 //							+ "rinominare il metodo in una maniera differente da \"getSomething\".");
@@ -133,7 +134,7 @@ public class BadMethodBehaviors {
 			 * di oggetti. 
 			 */
 			if(!methodName.endsWith("s") && 
-					!Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
+					!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, methodName, false)) {
 //					System.out.println("\tIl nome del metodo " + methodName 
 //							+ " suggerisce che debba essere restituito un unico oggetto, mentre il "
 //							+ "tipo di ritorno è una lista di oggetti.");
@@ -184,9 +185,9 @@ public class BadMethodBehaviors {
 			codeRegexsList.add("if");
 			codeRegexsList.add("switch");
 			
-			if(Utilities.checkPattern(comRegexsList, comment.getComment(), true)) {
+			if(MainWordsManipulation.checkPatterns(comRegexsList, comment.getComment(), true)) {
 //				System.out.println("\t\t" + comment.getComment());
-				if(!Utilities.checkPattern(codeRegexsList, mb.getTextContent(), false)) {
+				if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
 					saysMoreThanItDoes = true;
 					break;
 				}
@@ -207,9 +208,9 @@ public class BadMethodBehaviors {
 			
 			codeRegexsList.add("while");
 			
-			if(Utilities.checkPattern(comRegexsList, comment.getComment(), true)) {
+			if(MainWordsManipulation.checkPatterns(comRegexsList, comment.getComment(), true)) {
 //				System.out.println("\t\t" + comment.getComment());
-				if(!Utilities.checkPattern(codeRegexsList, mb.getTextContent(), false)) {
+				if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
 					saysMoreThanItDoes = true;
 					break;
 				}
@@ -238,7 +239,7 @@ public class BadMethodBehaviors {
 				 * di oggetti, controllo che restituisca effettivamente una collezione di oggetti.
 				 */
 				if(!methodName.endsWith("s") && 
-						!Utilities.checkPattern(Utilities.collectionRegex, methodName, false)) {
+						!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, methodName, false)) {
 					Set<SType> superClasses = mb.getReturnType().getSuperclasses();
 					if(superClasses != null && (superClasses.contains("Collection")
 							|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
@@ -270,7 +271,7 @@ public class BadMethodBehaviors {
 	 * @return <b>true</b> se il metodo fa l'opposto di quello che dice, <b>false</b> altrimenti.
 	 */
 	public static boolean doesTheOpposite(Method mb) {
-
+		
 		return false;
 	}
 	

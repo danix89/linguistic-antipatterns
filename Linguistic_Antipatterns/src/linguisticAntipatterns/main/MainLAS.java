@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import linguisticAntipatterns.methods.BadAttributeBehaviors;
-import linguisticAntipatterns.methods.BadMethodBehaviors;
 import sie.db.entity.Field;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
+import sie.linguisticAntipatterns.methods.BadMethodBehaviors;
 
 /**
  * Classe contenente il metodo principale per il controllo sulla metrica legata agli 

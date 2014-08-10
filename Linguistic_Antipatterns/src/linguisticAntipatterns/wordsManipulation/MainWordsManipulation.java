@@ -1,10 +1,73 @@
-package linguisticAntipatterns.methods;
+package linguisticAntipatterns.wordsManipulation;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Utilities {
+import linguisticAntipatterns.wordsManipulation.interfaces.WordsSuggestion;
+import linguisticAntipatterns.wordsManipulation.xml.CompleteSuggestion;
+import linguisticAntipatterns.wordsManipulation.xml.SAXWordsSuggestion;
+
+/**
+ * Fornisce una serie di metodi e variaibili utili per la manipolazione delle parole. 
+ * @author Daniele Iannone
+ *
+ */
+public class MainWordsManipulation {
+	private static WordsSuggestion ws = null;
+	public static final String collectionRegex = "list | collection | map | table"; //da completare con altri nomi che suggeriscano una collezione di oggetti	
+
+	/**
+	 * Setta l'algoritmo di ricerca delle parole da utilizzare.
+	 * @param algorithm Un algoritmo di ricerca che implementi l'interfaccia 
+	 * {@link WordsSuggestion}.
+	 */
+	public void setWordSuggestionAlgorithm(WordsSuggestion algorithm) {
+		ws = algorithm;
+	}
+	
+	/**
+	 * Restituisce una serie di suggerimenti per un dato insieme di caratteri, sfruttando 
+	 * l'algoritmo di ricerca delle parole specificato tramite il metodo  
+	 * {@link MainWordsManipulation#setWordSuggestionAlgorithm(WordsSuggestion)}. Ad esempio, se
+	 * al metodo viene dato in input l'insieme di caratteri "bo", il metodo restituisce la 
+	 * seguente lista di parole:
+	 * <ol>
+	 * <li>booking</li>
+	 * <li>bonprix</li>
+	 * <li>bologna</li>
+	 * </ol>
+	 * @param cset L'insieme di caratteri rispetto al quale trovare una serie di suggerimenti.
+	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>.
+	 * @throws Exception
+	 */
+	public static List<CompleteSuggestion> wordSuggestion(Charset cset) throws Exception {
+		
+		/*
+		 * Controllo che l'url sia valido (i.e., non è stato cambiato). In caso contrario,
+		 * scelgo un altro algoritmo.
+		 * 
+		 */
+		if(ws instanceof SAXWordsSuggestion) {
+			if(!(SAXWordsSuggestion.isURLValid())) {
+				return null; //per ora non sono disponibili altri algoritmi di ricerca in RepoMiner.
+			} else {
+				/* 
+				 * Questo controllo viene fatto solo per sicurezza (ws potrebbe non 
+				 * risultare inizializzato), in quanto non vi sono 
+				 * ancora altri algoritmi: quando sarà implementato un altro algoritmo, si 
+				 * potrà modificare questo controllo in modo che venga usato quest'ultimo 
+				 * al posto di SAXWordsSuggestion, nel caso in cui l'url non sia valida (e 
+				 * quindi risulta impossibile usare l'algoritmo SAXWordsSuggestion). 
+				 */
+				ws = new SAXWordsSuggestion();
+			}
+		}
+		
+		return ws != null ? ws.wordSuggestion(cset) : null;
+	}
+	
 	/**
 	 * Controlla se la stringa <b>str</b> contiene almeno una espressione regolare contenuta in 
 	 * <b>regexsList</b>. Se <b>wholeWord</b> è <b>true</b>, in <b>str</b>, viene effettuata 
@@ -18,7 +81,7 @@ public class Utilities {
 	 * qualità della ricerca.  
 	 * @return <b>true</b> se il pattern viene trovato, <b>false</b> altrimenti.
 	 */
-	protected static boolean checkPattern(List<String> regexsList, String str, boolean wholeWord) {
+	public static boolean checkPatterns(List<String> regexsList, String str, boolean wholeWord) {
 		if(wholeWord) {
 			str.replace(".", " ");
 			str.replace(":", " ");
@@ -66,7 +129,7 @@ public class Utilities {
 	 * qualità della ricerca.  
 	 * @return <b>true</b> se il pattern viene trovato, <b>false</b> altrimenti.
 	 */
-	protected static boolean checkPattern(String regex, String str, boolean wholeWord) {
+	public static boolean checkPattern(String regex, String str, boolean wholeWord) {
 		if(wholeWord) {
 			str.replace(".", " ");
 			str.replace(":", " ");
@@ -85,6 +148,4 @@ public class Utilities {
 		else
 			return false;
 	}
-	
-	protected static final String collectionRegex = "list | collection | map | table"; //da completare con altri nomi che suggeriscano una collezione di oggetti
 }
