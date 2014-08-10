@@ -1,5 +1,6 @@
 package linguisticAntipatterns.wordsManipulation;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,6 +9,9 @@ import java.util.regex.Pattern;
 import linguisticAntipatterns.wordsManipulation.interfaces.WordsSuggestion;
 import linguisticAntipatterns.wordsManipulation.xml.CompleteSuggestion;
 import linguisticAntipatterns.wordsManipulation.xml.SAXWordsSuggestion;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.WordNetDatabase;
+import edu.smu.tspell.wordnet.WordSense;
 
 /**
  * Fornisce una serie di metodi e variaibili utili per la manipolazione delle parole. 
@@ -147,5 +151,32 @@ public class MainWordsManipulation {
 			return true;
 		else
 			return false;
+	}
+	
+	/**
+	 * Restituisce la lista dei contrari della parola <b>word</b>.
+	 * @param word La parola per cui trovare i contrari.
+	 * @return La lista di contrari.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static String getAntonyms(String word) throws IOException, InterruptedException {
+		if(word.length() <= 0 || word.startsWith(" "))
+			return null;
+
+		word = word.toLowerCase();
+		
+		WordNetDatabase database = WordNetDatabase.getFileInstance();
+		Synset[] synsets = database.getSynsets(word);
+		
+		int len = synsets.length;
+		for(int i = 0; i < len; i++) {
+			WordSense[] ant = synsets[i].getAntonyms(word);
+			if(ant.length > 0) {
+				return ant[0].getWordForm();
+			}
+		}
+		
+		return null;
 	}
 }
