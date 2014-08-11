@@ -52,13 +52,13 @@ public class MainWordsManipulation {
 	public static List<CompleteSuggestion> wordSuggestion(String str) throws Exception {
 		
 		/*
-		 * Controllo che l'url sia valido (i.e., non è stato cambiato). In caso contrario,
-		 * scelgo un altro algoritmo.
-		 * 
+		 * Se è stato scelto l'algoritmo di Google, controllo che l'url sia valida 
+		 * (i.e., non è stata cambiata); se invece non è stato selezionato nessun altro 
+		 * algoritmo, scelgo quello di Google; altrimenti, scelgo un altro algoritmo. 
 		 */
 		if(ws instanceof SAXWordsSuggestion) {
 			if(!(SAXWordsSuggestion.isURLValid())) {
-				return null; //per ora non sono disponibili altri algoritmi di ricerca in RepoMiner.
+				return new ArrayList<CompleteSuggestion>(); //per ora non sono disponibili altri algoritmi di ricerca in RepoMiner.
 			} else {
 				/* 
 				 * Questo controllo viene fatto solo per sicurezza (ws potrebbe non 
@@ -70,7 +70,11 @@ public class MainWordsManipulation {
 				 */
 				ws = new SAXWordsSuggestion();
 			}
-		}
+		} else if(ws == null && SAXWordsSuggestion.isURLValid()) {
+			ws = new SAXWordsSuggestion();
+		} /* else {
+			
+		} */
 		
 		return ws != null ? ws.wordSuggestion(str) : new ArrayList<CompleteSuggestion>();
 	}
