@@ -1,7 +1,7 @@
 package linguisticAntipatterns.wordsManipulation;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,11 +42,14 @@ public class MainWordsManipulation {
 	 * <li>bonprix</li>
 	 * <li>bologna</li>
 	 * </ol>
-	 * @param cset L'insieme di caratteri rispetto al quale trovare una serie di suggerimenti.
-	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>.
+	 * @param str Una stringa che rappresenta l'insieme di caratteri rispetto ad i quali
+	 * trovare una serie di suggerimenti.
+	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b> (nel caso 
+	 * non ci siano suggerimenti la lista è vuota), se l'URL è valida; una lista vuota, 
+	 * altrimenti.
 	 * @throws Exception
 	 */
-	public static List<CompleteSuggestion> wordSuggestion(Charset cset) throws Exception {
+	public static List<CompleteSuggestion> wordSuggestion(String str) throws Exception {
 		
 		/*
 		 * Controllo che l'url sia valido (i.e., non è stato cambiato). In caso contrario,
@@ -69,7 +72,7 @@ public class MainWordsManipulation {
 			}
 		}
 		
-		return ws != null ? ws.wordSuggestion(cset) : null;
+		return ws != null ? ws.wordSuggestion(str) : new ArrayList<CompleteSuggestion>();
 	}
 	
 	/**

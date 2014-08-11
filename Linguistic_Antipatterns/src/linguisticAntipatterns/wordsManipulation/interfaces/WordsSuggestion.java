@@ -1,6 +1,5 @@
 package linguisticAntipatterns.wordsManipulation.interfaces;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import linguisticAntipatterns.wordsManipulation.xml.CompleteSuggestion;
@@ -20,9 +19,11 @@ public interface WordsSuggestion {
 	 * <li>booking</li>
 	 * <li>bonprix</li>
 	 * <li>bologna</li>
-	 * @param cset L'insieme di caratteri rispetto al quale trovare una serie di suggerimenti.
-	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>.
+	 * @param str Una stringa che rappresenta l'insieme di caratteri rispetto ad i quali
+	 * trovare una serie di suggerimenti.
+	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>. Nel caso 
+	 * non ci siano suggerimenti, la lista sarà vuota.
 	 * @throws Exception
 	 */
-	public List<CompleteSuggestion> wordSuggestion(Charset cset) throws Exception;
+	public List<CompleteSuggestion> wordSuggestion(String str) throws Exception;
 }

@@ -1,7 +1,6 @@
 package linguisticAntipatterns.wordsManipulation.xml;
 
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.xml.parsers.SAXParser;
@@ -38,15 +37,17 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 	 * Google stessa. In particolare viene effettuata una connessione http al server, 
 	 * quindi si procede con il processare il file XML (scaricato in seguito a tale 
 	 * connessione), al fine di ottenere la lista di suggerimenti. 
-	 * @param cset L'insieme di caratteri rispetto al quale trovare una serie di suggerimenti.
-	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>.
+	 * @param str Una stringa che rappresenta l'insieme di caratteri rispetto ad i quali
+	 * trovare una serie di suggerimenti.
+	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>. Nel caso 
+	 * non ci siano suggerimenti, la lista sarà vuota.
 	 * @throws Exception
 	 */
-	public List<CompleteSuggestion> wordSuggestion(Charset cset) throws Exception {
+	public List<CompleteSuggestion> wordSuggestion(String str) throws Exception {
 		SAXParserFactory parserFactor = SAXParserFactory.newInstance();
 		SAXParser parser = parserFactor.newSAXParser();
 		SAXAutocompleteHandler handler = new SAXAutocompleteHandler();
-		URL url = new URL(googleSuggestQueryURL	+ cset);
+		URL url = new URL(googleSuggestQueryURL	+ str);
 		parser.parse(new InputSource(url.openStream()), 
 				handler);
 		
