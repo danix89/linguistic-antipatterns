@@ -161,29 +161,60 @@ public class MainWordsManipulation {
 	}
 	
 	/**
+	 * Restituisce la lista dei sinonimi della parola <b>word</b>.
+	 * @param word La parola per cui trovare i sinonimi.
+	 * @return La lista di sinonimi.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static String[] getSynonyms(String word) throws IOException, InterruptedException {
+		List<String> synList = new ArrayList<String>();
+		String[] wordForms = null; 
+		
+		WordNetDatabase database = WordNetDatabase.getFileInstance();
+		Synset[] synsets = database.getSynsets(word);
+				
+		int len = synsets.length;
+		for(int i = 0; i < len; i++) {
+			wordForms = synsets[i].getWordForms();
+			for(int j = 0; j < synsets.length; j++) {
+				synList.add(wordForms[j]);
+			}
+		}
+		return wordForms;
+	}
+	
+	/**
 	 * Restituisce la lista dei contrari della parola <b>word</b>.
 	 * @param word La parola per cui trovare i contrari.
 	 * @return La lista di contrari.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static String getAntonyms(String word) throws IOException, InterruptedException {
+	public static List<String> getAntonyms(String word) throws IOException, InterruptedException {
 		if(word.length() <= 0 || word.startsWith(" "))
-			return null;
-
+			return new ArrayList<String>();
 		word = word.toLowerCase();
-		
+
 		WordNetDatabase database = WordNetDatabase.getFileInstance();
+		/*
+		 * Non posso usare il metodo getSynonyms(), poichè mi serve un oggetto Synset per 
+		 * chiamare il metodo getAntonyms().  
+		 */
 		Synset[] synsets = database.getSynsets(word);
 		
+		List<String> antList = new ArrayList<String>();
+		int antLen = 0;
 		int len = synsets.length;
 		for(int i = 0; i < len; i++) {
 			WordSense[] ant = synsets[i].getAntonyms(word);
 			if(ant.length > 0) {
-				return ant[0].getWordForm();
+				antLen = ant.length;
+				for(int j = 0; j < antLen; j++)
+					antList.add(ant[j].getWordForm());
 			}
 		}
 		
-		return null;
+		return antList;
 	}
 }
