@@ -167,21 +167,22 @@ public class MainWordsManipulation {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static String[] getSynonyms(String word) throws IOException, InterruptedException {
+	public static List<String> getSynonyms(String word) throws IOException, InterruptedException {
 		List<String> synList = new ArrayList<String>();
 		String[] wordForms = null; 
 		
 		WordNetDatabase database = WordNetDatabase.getFileInstance();
 		Synset[] synsets = database.getSynsets(word);
 				
-		int len = synsets.length;
-		for(int i = 0; i < len; i++) {
+		int synsetsLen = synsets.length, wordFormsLen = 0;
+		for(int i = 0; i < synsetsLen; i++) {
 			wordForms = synsets[i].getWordForms();
-			for(int j = 0; j < synsets.length; j++) {
+			wordFormsLen = wordForms.length;
+			for(int j = 0; j < wordFormsLen; j++) {
 				synList.add(wordForms[j]);
 			}
 		}
-		return wordForms;
+		return synList;
 	}
 	
 	/**
@@ -216,5 +217,38 @@ public class MainWordsManipulation {
 		}
 		
 		return antList;
+	}
+	
+	/**
+	 * Crea una nuova lista, effettuando un'operazione di pulitura della lista <b>sugList</b>, 
+	 * ossia:
+	 * <ol>
+	 * <li>In caso di suggerimenti composti da due o più parole, vengono cancellate tutte le 
+	 * parole che seguono la prima;</li>
+	 * <li>Vengono eliminate eventuali parole duplicate, a causa dell'eliminazione delle 
+	 * parole successive alla prima (qualora vi fossero);</li>
+	 * <li>Se nella lista sono presenti parole non contenute nel dizionario WordNet, 
+	 * quest'ultime vengono cancellate;</li>
+	 * <li>Gli oggetti {@link CompleteSuggestion} (contenuti in <b>sugList</b>) vengono 
+	 * convertiti in {@link String}.</li>
+	 * </ol>
+	 * @param sugList La lista di suggerimenti restituita dal metodo 
+	 * {@link SAXWordsSuggestion#wordSuggestion(String)}.
+	 * @return La lista <b>sugList</b> "pulita".
+	 * @throws InterruptedException 
+	 * @throws Exception 
+	 */
+	public static List<String> cleanList(List<CompleteSuggestion> sugList) throws Exception {
+		List<String> tmpSugList = new ArrayList<String>();
+		
+		int size = sugList.size();
+		for (int i = 0; i < size; i++) {
+			String tmp = sugList.get(i).toString().split(" ")[0];
+			if(!tmpSugList.contains(tmp) 
+					&& MainWordsManipulation.getSynonyms(tmp).size() > 0)
+				tmpSugList.add(tmp);
+		} 
+		
+		return tmpSugList;
 	}
 }
