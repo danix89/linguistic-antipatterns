@@ -19,7 +19,7 @@ public class SAXAutocompleteHandler extends DefaultHandler {
 	
 	/**
 	 * Restituisce la lista delle parole trovate nel file XML.
-	 * @return La lista di suggerimenti.
+	 * @return La lista di suggerimenti, se ce ne sono; una lista vuota, altrimenti.
 	 */
 	public List<CompleteSuggestion> getComSugestionList() {
 		return comSugestionList;
