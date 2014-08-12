@@ -47,9 +47,11 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 		SAXParserFactory parserFactor = SAXParserFactory.newInstance();
 		SAXParser parser = parserFactor.newSAXParser();
 		SAXAutocompleteHandler handler = new SAXAutocompleteHandler();
-		URL url = new URL(googleSuggestQueryURL	+ str);
-		parser.parse(new InputSource(url.openStream()), 
-				handler);
+		if(str != null && str.length() == 0) {
+			URL url = new URL(googleSuggestQueryURL	+ str);
+			parser.parse(new InputSource(url.openStream()), 
+					handler);
+		}
 		
 		return handler.getComSugestionList();
 	}
