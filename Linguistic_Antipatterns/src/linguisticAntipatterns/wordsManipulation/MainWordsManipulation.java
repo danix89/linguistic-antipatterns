@@ -2,6 +2,7 @@ package linguisticAntipatterns.wordsManipulation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,7 +82,7 @@ public class MainWordsManipulation {
 	
 	/**
 	 * Controlla se la stringa <b>str</b> contiene almeno una espressione regolare contenuta in 
-	 * <b>regexsList</b>. Se <b>wholeWord</b> è <b>true</b>, in <b>str</b>, viene effettuata 
+	 * <b>regexsList</b>. Se <b>wholeWord</b> è <b>true</b>, in <b>str</b> viene effettuata 
 	 * un'operazione di pulizia iniziale della stringa, al fine di isolare eventuali parole (nel caso
 	 * di stringhe formate da più parole) rispetto le quali andare a controllare il match con le 
 	 * espressioni regolari.
@@ -129,7 +130,7 @@ public class MainWordsManipulation {
 	
 	/**
 	 * Controlla se la stringa <b>str</b> contiene l'espressione regolare <b>regex</b>. 
-	 * Se <b>wholeWord</b> è <b>true</b>, in <b>str</b>, viene effettuata 
+	 * Se <b>wholeWord</b> è <b>true</b>, in <b>str</b> viene effettuata 
 	 * un'operazione di pulizia iniziale della stringa, al fine di isolare eventuali parole (nel caso
 	 * di stringhe formate da più parole) rispetto le quali andare a controllare il match con 
 	 * l'espressione regolare.
@@ -220,6 +221,48 @@ public class MainWordsManipulation {
 	}
 	
 	/**
+	 * Controlla se tra le parole contenute in <b>wordsList</b> è contenuto almeno un 
+	 * contrario della parola contenuta in <b>word</b> effettuando i seguenti controlli:
+	 * <ol>
+	 * <li>Se <b>word</b> è contenuta in <b>wordsList</b> e il valore associato 
+	 * alla chiave relativa a <b>word</b> è <b>true</b>, allora in <b>wordsList</b> è 
+	 * contenuto il contrario di <b>word</b>: nella frase da cui è stata estrapolata 
+	 * <b>wordsList</b>, <b>word</b> risulta essere contenuta in forma negata;</li>
+	 * <li>Se il contrario di <b>word</b> è contenuto in <b>wordsList</b> e il valore 
+	 * associato alla chiave relativa a tale parole è <b>false</b>, allora in <b>wordsList</b> è 
+	 * contenuto il contrario di <b>word</b>: nella frase da cui è stata estrapolata 
+	 * <b>wordsList</b>, <b>word</b> risulta essere contenuta in forma non negata.</li>
+	 * </ol>
+	 * <br>
+	 * <br>
+	 * <b>Nota:</b> Per funzionare correttamente, tale metodo richiede che la {@link HashMap}
+	 * <b>wordsList</b> sia generata tramite il metodo {@link MainWordsManipulation#cleanComment(String)}.
+	 * @param wordsList
+	 * @param word
+	 * @return
+	 * @throws Exception
+	 */
+	public static boolean checkAntonym(HashMap<String, Boolean> wordsList, String word) throws Exception {
+		List<String> antList = new ArrayList<String>();
+		int antSize = 0;
+		Boolean isNegated = wordsList.get(word);
+		
+		if(isNegated != null && isNegated)
+			return true;
+		
+		antList = MainWordsManipulation.getAntonyms(word);
+		if(antList.size() > 0) { 
+			antSize = antList.size();
+			for(int k = 0; k < antSize; k++) {
+				isNegated = wordsList.get(antList.get(k));
+				if(isNegated != null && !isNegated)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Crea una nuova lista, effettuando un'operazione di pulitura della lista <b>sugList</b>, 
 	 * ossia:
 	 * <ol>
@@ -250,5 +293,46 @@ public class MainWordsManipulation {
 		} 
 		
 		return tmpSugList;
+	}
+
+	/**
+	 * Crea una {@link HashMap} usando, come chiave, tutte le parole contenute in <b>comment</b> 
+	 * e, come valore, un oggetto {@link Boolean}, che indica se una data parola - che viene 
+	 * inserita, appunto, nella nuova {@link HashMap} - risulta essere negata (<b>true</b>) 
+	 * o meno (<b>false</b>) in <b>comment</b>.  
+	 * @param comment La frase da cui estrapolare tutte le parole da inserire nella 
+	 * {@link HashMap}.
+	 * @return La {@link HashMap} di cui sopra.
+	 */
+	public static HashMap<String, Boolean> cleanComment(String comment) {
+		List<String> negationRegexList = new ArrayList<String>(); 
+		
+		/*
+		 * Da completare con altre forme di negazione
+		 */
+		negationRegexList.add("n't");
+		negationRegexList.add("no");
+		negationRegexList.add("not");
+		negationRegexList.add("never");
+		
+		HashMap<String, Boolean> commentWordsHashMap = new HashMap<String, Boolean>();
+		String[] words = comment.split(" ");
+		int len = words.length;
+		for(int i = 0; i < len; i++) {
+			if(!words[i].equals(",") && !words[i].equals(";") && 
+					!words[i].equals(".") && !words[i].equals(":") &&
+					!words[i].equals("_") && !words[i].equals("-") && 
+					!words[i].equals("(") && !words[i].equals(")") &&
+					!commentWordsHashMap.containsKey(words[i])) {
+				Boolean isNegated = false;
+				
+				if((i > 0 && checkPatterns(negationRegexList, words[i-1], false)) || 
+						(i > 1 && checkPatterns(negationRegexList, words[i-2], false)))
+					isNegated = true;
+				
+				commentWordsHashMap.put(words[i], isNegated);
+			}
+		}
+		return commentWordsHashMap;
 	}
 }
