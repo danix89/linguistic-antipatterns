@@ -1,8 +1,10 @@
 package linguisticAntipatterns.wordsManipulation.xml;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -10,6 +12,7 @@ import linguisticAntipatterns.wordsManipulation.interfaces.WordsSuggestion;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Classe che implementa il metodo di ricerca dei suggerimenti - per una data sequenza di 
@@ -41,16 +44,27 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 	 * trovare una serie di suggerimenti.
 	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>. Nel caso 
 	 * non ci siano suggerimenti, la lista sarà vuota.
-	 * @throws Exception
 	 */
-	public List<CompleteSuggestion> wordSuggestion(String str) throws Exception {
+	public List<CompleteSuggestion> wordSuggestion(String str) {
 		SAXParserFactory parserFactor = SAXParserFactory.newInstance();
-		SAXParser parser = parserFactor.newSAXParser();
+		SAXParser parser = null;
+		try {
+			parser = parserFactor.newSAXParser();
+		} catch (ParserConfigurationException | SAXException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		SAXAutocompleteHandler handler = new SAXAutocompleteHandler();
 		if(str != null && str.length() != 0) {
-			URL url = new URL(googleSuggestQueryURL	+ str);
-			parser.parse(new InputSource(url.openStream()), 
-					handler);
+			URL url;
+			try {
+				url = new URL(googleSuggestQueryURL	+ str);
+				parser.parse(new InputSource(url.openStream()), 
+						handler);
+			} catch (SAXException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return handler.getComSugestionList();

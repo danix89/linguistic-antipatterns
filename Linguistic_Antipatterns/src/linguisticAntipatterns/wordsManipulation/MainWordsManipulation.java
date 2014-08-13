@@ -1,6 +1,5 @@
 package linguisticAntipatterns.wordsManipulation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +47,8 @@ public class MainWordsManipulation {
 	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b> (nel caso 
 	 * non ci siano suggerimenti la lista è vuota), se l'URL è valida; una lista vuota, 
 	 * altrimenti.
-	 * @throws Exception
 	 */
-	public static List<CompleteSuggestion> wordSuggestion(String str) throws Exception {
+	public static List<CompleteSuggestion> wordSuggestion(String str) {
 		
 		/*
 		 * Se è stato scelto l'algoritmo di Google, controllo che l'url sia valida 
@@ -165,10 +163,8 @@ public class MainWordsManipulation {
 	 * Restituisce la lista dei sinonimi della parola <b>word</b>.
 	 * @param word La parola per cui trovare i sinonimi.
 	 * @return La lista di sinonimi.
-	 * @throws IOException
-	 * @throws InterruptedException
 	 */
-	public static List<String> getSynonyms(String word) throws IOException, InterruptedException {
+	public static List<String> getSynonyms(String word) {
 		List<String> synList = new ArrayList<String>();
 		String[] wordForms = null; 
 		
@@ -190,10 +186,8 @@ public class MainWordsManipulation {
 	 * Restituisce la lista dei contrari della parola <b>word</b>.
 	 * @param word La parola per cui trovare i contrari.
 	 * @return La lista di contrari.
-	 * @throws IOException
-	 * @throws InterruptedException
 	 */
-	public static List<String> getAntonyms(String word) throws IOException, InterruptedException {
+	public static List<String> getAntonyms(String word) {
 		if(word.length() <= 0 || word.startsWith(" "))
 			return new ArrayList<String>();
 		word = word.toLowerCase();
@@ -240,9 +234,8 @@ public class MainWordsManipulation {
 	 * @param wordsList
 	 * @param word
 	 * @return
-	 * @throws Exception
 	 */
-	public static boolean checkAntonym(HashMap<String, Boolean> wordsList, String word) throws Exception {
+	public static boolean checkAntonym(HashMap<String, Boolean> wordsList, String word) {
 		List<String> antList = new ArrayList<String>();
 		int antSize = 0;
 		Boolean isNegated = wordsList.get(word);
@@ -278,10 +271,8 @@ public class MainWordsManipulation {
 	 * @param sugList La lista di suggerimenti restituita dal metodo 
 	 * {@link SAXWordsSuggestion#wordSuggestion(String)}.
 	 * @return La lista <b>sugList</b> "pulita".
-	 * @throws InterruptedException 
-	 * @throws Exception 
 	 */
-	public static List<String> cleanList(List<CompleteSuggestion> sugList) throws Exception {
+	public static List<String> cleanList(List<CompleteSuggestion> sugList) {
 		List<String> tmpSugList = new ArrayList<String>();
 		
 		int size = sugList.size();

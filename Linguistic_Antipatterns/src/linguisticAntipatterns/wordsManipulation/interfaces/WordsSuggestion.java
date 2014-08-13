@@ -23,7 +23,6 @@ public interface WordsSuggestion {
 	 * trovare una serie di suggerimenti.
 	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>. Nel caso 
 	 * non ci siano suggerimenti, la lista sarà vuota.
-	 * @throws Exception
 	 */
-	public List<CompleteSuggestion> wordSuggestion(String str) throws Exception;
+	public List<CompleteSuggestion> wordSuggestion(String str);
 }
