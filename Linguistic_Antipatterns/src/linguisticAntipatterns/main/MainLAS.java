@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import linguisticAntipatterns.methods.BadAttributeBehaviors;
+import linguisticAntipatterns.methods.BadMethodBehaviors;
 import sie.db.entity.Field;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
-import sie.linguisticAntipatterns.methods.BadMethodBehaviors;
 
 /**
  * Classe contenente il metodo principale per il controllo sulla metrica legata agli 
@@ -28,15 +28,29 @@ public class MainLAS {
 	 * <b>false</b> altrimenti.
 	 */
 	public static boolean getLAS(Set<SType> listClasses) {
+		long start = System.currentTimeMillis();
 		Set<Method> Methods = null;
-
+		boolean LASFlag = false;
+		
+		System.out.println("");
+		
 		for(Iterator<SType> MI = listClasses.iterator(); MI.hasNext(); ) {
 			Methods = MI.next().getMethods();
 			for(Method mb : Methods) {
-				if(BadMethodBehaviors.doesMoreThanItSays(mb) 
-						|| BadMethodBehaviors.saysMoreThanItDoes(mb) 
-						|| BadMethodBehaviors.doesTheOpposite(mb))
-					return true;
+				System.out.println("Method name: " + mb.getBelongingClass() 
+						+ "." + mb.getName());
+				if(BadMethodBehaviors.doesMoreThanItSays(mb)) {
+					LASFlag = true;
+					System.err.println("Does More Than It Says");
+				}
+				if(BadMethodBehaviors.saysMoreThanItDoes(mb)) {
+					LASFlag = true;
+					System.err.println("Says More Than It Does");
+				}
+				if(BadMethodBehaviors.doesTheOpposite(mb)) {
+					LASFlag = true;
+					System.err.println("Does The Opposite");
+				}
 			}
 		}
 
@@ -45,14 +59,25 @@ public class MainLAS {
 		for(Iterator<SType> FI = listClasses.iterator(); FI.hasNext(); ) {
 			Fields = FI.next().getInstanceVariables();
 			for(Field f : Fields) {
-				if(BadAttributeBehaviors.containsMoreThanItSays(f)
-					|| BadAttributeBehaviors.saysMoreThanItContains(f)
-					|| BadAttributeBehaviors.containsTheOpposite(f))
-					return true;
+				if(BadAttributeBehaviors.containsMoreThanItSays(f)) {
+					LASFlag = true;
+					System.err.println("Contains More Than It Says");
+				}
+				if(BadAttributeBehaviors.saysMoreThanItContains(f)) {
+					LASFlag = true;
+					System.err.println("Says More Than It Contains");
+				}
+				if(BadAttributeBehaviors.containsTheOpposite(f)) {
+					LASFlag = true;
+					System.err.println("Contains The Opposite");
+				}
 			}
 		}
-
-		return false;
+		
+		long end = System.currentTimeMillis();
+		System.out.println("Linguistic AntiPatterns detection took: " + ((end - start) / 1000) + "s");
+		
+		return LASFlag;
 	}
 
 }
