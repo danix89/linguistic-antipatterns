@@ -1,7 +1,9 @@
 package linguisticAntipatterns.methods;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import linguisticAntipatterns.wordsManipulation.MainWordsManipulation;
@@ -9,6 +11,8 @@ import sie.db.entity.CodeComment;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
 import sie.db.entity.Variable;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.WordNetDatabase;
 
 /**
  * Questa classe offre i metodi per trovare eventuali anti-paterns linguistici legati ad i metodi di 
@@ -269,10 +273,109 @@ public class BadMethodBehaviors {
 	 * </ol>
 	 * @param mb Un oggetto {@link Method} contenente il metodo da esaminare.
 	 * @return <b>true</b> se il metodo fa l'opposto di quello che dice, <b>false</b> altrimenti.
+	 * @throws Exception 
 	 */
 	public static boolean doesTheOpposite(Method mb) {
+		boolean doesTheOpposite = false;
+		String methodName = mb.getName().toLowerCase();
+		String methodReturnType = mb.getReturnType().getName();
+		String comment = mb.getComments().toString();
 		
-		return false;
+		for(String mt : methodName.split("_")) {
+			List<String> ant = MainWordsManipulation.getAntonyms(mt);
+			if(ant.size() > 0 && comment.contains(ant.get(0))) {
+				System.out.println("1. Does the opposite");
+				doesTheOpposite = true;
+			}
+			
+			return doesTheOpposite;
+		}
+		
+		String tmp = "";
+		
+		boolean upperCaseFlag = false;
+		int i = 0, c = 0;
+		if(Character.isUpperCase(methodName.charAt(0)))
+			methodName = methodName.replaceFirst("" + methodName.charAt(0), "" + Character.toLowerCase(methodName.charAt(0)));
+		
+		HashMap<String, Boolean> cleanedCcomment = MainWordsManipulation.cleanComment(comment);
+		
+		WordNetDatabase database = null;
+		Synset[] synsets = null;
+
+		List<String> sugList = new ArrayList<String>();
+		int sugSize = 0;
+		int metLen = methodName.length();
+		while(i < metLen) {
+			while(i < metLen && Character.isLowerCase(methodName.charAt(i))) {
+				i++;
+			}
+			
+			if(i < (metLen - 1) && Character.isUpperCase(methodName.charAt(i))) {
+				upperCaseFlag = true;
+				if(i > 0) {
+					tmp = methodName.substring(c, i);
+					
+					database = WordNetDatabase.getFileInstance();
+					synsets = database.getSynsets(tmp);
+					
+					if(synsets.length > 0) {
+						if(MainWordsManipulation.checkAntonym(cleanedCcomment, tmp)) {
+//							System.out.println("2. Does the opposite");
+							doesTheOpposite = true;
+						}
+					} else {
+						sugList = MainWordsManipulation.cleanList(MainWordsManipulation.wordSuggestion(tmp));
+						sugSize = sugList.size(); 
+						if(sugList.size() > 0) {
+							for(int j = 0; j < sugSize; j++) {
+//								System.out.println(sugList.get(j));
+								
+								if(MainWordsManipulation.checkAntonym(cleanedCcomment, sugList.get(j))) {
+//									System.out.println("3. Does the opposite");
+									doesTheOpposite = true;
+								}
+							}
+						}
+					}
+				}
+				c = i;
+				i++;
+			}
+		}
+		
+		if(!upperCaseFlag) {
+			if(MainWordsManipulation.getSynonyms(methodName).size() > 0) {
+				if(MainWordsManipulation.checkAntonym(cleanedCcomment, tmp)) {
+//					System.out.println("4. Does the opposite");
+					doesTheOpposite = true;
+				}
+			} else {
+				for(i = 0; i < metLen; i++) {
+					for (int j = metLen; j > i; j--) {
+						if(j - i > 1) {
+							tmp = methodName.substring(i, j);
+							sugList = MainWordsManipulation.cleanList(MainWordsManipulation.wordSuggestion(tmp));
+							sugSize = sugList.size(); 
+							if(sugList.size() > 0) {
+								for(int k = 0; k < sugSize; k++) {
+//									System.out.println("parola: " + tmp + " -> " + sugList.get(k));
+									
+									if(MainWordsManipulation.checkAntonym(cleanedCcomment, sugList.get(k))) {
+//										System.out.println("5. Does the opposite\n");
+										doesTheOpposite = true;
+									}
+								}
+							} /* else {
+								System.out.println("parola: " + tmp + " -> " + "nessun suggerimento trovato");
+							} */
+						}
+					}
+				}
+			}
+		}
+		
+		return doesTheOpposite;
 	}
 	
 }
