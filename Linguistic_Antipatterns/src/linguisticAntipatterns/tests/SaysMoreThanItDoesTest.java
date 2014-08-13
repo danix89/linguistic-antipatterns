@@ -4,12 +4,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
+import linguisticAntipatterns.methods.BadMethodBehaviors;
+
 import org.junit.Test;
 
 import sie.db.entity.CodeComment;
 import sie.db.entity.Method;
 import sie.db.entity.SType;
-import sie.linguisticAntipatterns.methods.BadMethodBehaviors;
 
 
 /**
