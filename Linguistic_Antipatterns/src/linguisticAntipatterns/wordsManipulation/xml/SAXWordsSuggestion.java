@@ -1,6 +1,8 @@
 package linguisticAntipatterns.wordsManipulation.xml;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.List;
 
@@ -47,24 +49,29 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 	 */
 	public List<CompleteSuggestion> wordSuggestion(String str) {
 		SAXParserFactory parserFactor = SAXParserFactory.newInstance();
+		SAXAutocompleteHandler handler = null;
 		SAXParser parser = null;
 		try {
 			parser = parserFactor.newSAXParser();
+			handler = new SAXAutocompleteHandler();
+			if(str != null && str.length() != 0) {
+				URL url;
+				url = new URL(googleSuggestQueryURL	+ str);
+				/*
+				 * Serve per il riconoscimento automatico della codifica, 
+				 * usata per il file XML. 
+				 */
+				Reader isr = new InputStreamReader(url.openStream());
+				InputSource is = new InputSource();
+				is.setCharacterStream(isr);
+				parser.parse(is, handler);
+			}
 		} catch (ParserConfigurationException | SAXException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		SAXAutocompleteHandler handler = new SAXAutocompleteHandler();
-		if(str != null && str.length() != 0) {
-			URL url;
-			try {
-				url = new URL(googleSuggestQueryURL	+ str);
-				parser.parse(new InputSource(url.openStream()), 
-						handler);
-			} catch (SAXException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return handler.getComSugestionList();
