@@ -1,9 +1,7 @@
 package linguisticAntipatterns.methods;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import linguisticAntipatterns.wordsManipulation.MainWordsManipulation;
@@ -15,8 +13,8 @@ import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 
 /**
- * Questa classe offre i metodi per trovare eventuali anti-paterns linguistici legati ad i metodi di 
- * una classe.
+ * Questa classe offre i metodi per trovare eventuali anti-paterns linguistici legati ad i 
+ * metodi di una classe.
  * @author Daniele Iannone
  *
  */
@@ -37,7 +35,8 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean doesMoreThanItSays(Method mb) {
 		boolean doesMoreThanSays = false;
-		String methodName = mb.getName();
+		String methodName = extractMethodName(mb.getName());
+		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
 		
 		/*
@@ -46,7 +45,7 @@ public class BadMethodBehaviors {
 		 * se invece comincia con set, controllo che il metodo non restituisca alcun valore.  
 		 */
 		
-		if(methodName.toLowerCase().contains("get")) {
+		if(methodNameLowerCase.contains("get")) {
 			String code = mb.getTextContent();
 			
 			/*
@@ -107,14 +106,14 @@ public class BadMethodBehaviors {
 					}
 				}
 			} 
-		} else if(methodName.toLowerCase().startsWith("is")) {
+		} else if(methodNameLowerCase.startsWith("is")) {
 			if(!methodReturnType.equalsIgnoreCase("boolean") && !methodReturnType.equalsIgnoreCase("void")) {
 //					System.out.println("\tIl metodo " + methodName 
 //							+ " dovrebbe restituire un oggetto o un valore booleano,"
 //							+ " invece il tipo di ritorno è " + methodReturnType + ".");
 				doesMoreThanSays = true;
 			}
-		} else if(methodName.toLowerCase().startsWith("set")) {
+		} else if(methodNameLowerCase.startsWith("set")) {
 			if(!methodReturnType.equalsIgnoreCase("void")) {
 //					System.out.println("\tIl metodo " + methodName 
 //							+ " non dovrebbe restituire alcun oggetto o valore,"
@@ -169,57 +168,60 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean saysMoreThanItDoes(Method mb) {
 		boolean saysMoreThanItDoes = false;
-		String methodName = mb.getName().toLowerCase();
+		String methodName = extractMethodName(mb.getName());
+		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
+		String comment = "";
+		
+		for (Iterator<CodeComment> iterator = mb.getComments().iterator(); iterator.hasNext();) {
+			CodeComment cc = (CodeComment) iterator.next();
+			comment = comment.concat(cc.getComment());
+		}
 		
 		/*
 		 * Controllo che, nel caso in cui nel commento venga menzionato il controllo di una 
 		 * condizione, la condizione stessa venga effettivamente implementata tramite if, switch, 
 		 * ecc...
 		 */
-		for(CodeComment comment : mb.getComments()) {
-			ArrayList<String> comRegexsList = new ArrayList<String>();
-			ArrayList<String> codeRegexsList = new ArrayList<String>();
-			
-			comRegexsList.add("if");
-			comRegexsList.add("se");
-			comRegexsList.add("else");
-			comRegexsList.add("altrimenti");
-			
-			codeRegexsList.add("if");
-			codeRegexsList.add("switch");
-			
-			if(MainWordsManipulation.checkPatterns(comRegexsList, comment.getComment(), true)) {
+		ArrayList<String> comRegexsList = new ArrayList<String>();
+		ArrayList<String> codeRegexsList = new ArrayList<String>();
+		
+		comRegexsList.add("if");
+		comRegexsList.add("se");
+		comRegexsList.add("else");
+		comRegexsList.add("altrimenti");
+		
+		codeRegexsList.add("if");
+		codeRegexsList.add("switch");
+		
+		if(MainWordsManipulation.checkPatterns(comRegexsList, comment, true)) {
 //				System.out.println("\t\t" + comment.getComment());
-				if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
-					saysMoreThanItDoes = true;
-					break;
-				}
+			if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
+				saysMoreThanItDoes = true;
 			}
-			
-			/*
-			 * Per controllare se la particolare condizione citata nel commento (nel caso seguente 
-			 * il while) sia stata implementata, le seguenti linee di codice sono indispensabili 
-			 * (i.e., per ciascuna istruzione java è necessario effettuare un controllo per volta,
-			 * altrimenti potrebbe esservi un match anche nel caso in cui nel commento si facesse
-			 * riferimento ad un while mentre viene implementato un if). 
-			 */
-			comRegexsList.clear();
-			codeRegexsList.clear();
-			
-			comRegexsList.add("while");
-			comRegexsList.add("finche'");
-			
-			codeRegexsList.add("while");
-			
-			if(MainWordsManipulation.checkPatterns(comRegexsList, comment.getComment(), true)) {
-//				System.out.println("\t\t" + comment.getComment());
-				if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
-					saysMoreThanItDoes = true;
-					break;
-				}
-			} 
 		}
+		
+		/*
+		 * Per controllare se la particolare condizione citata nel commento (nel caso seguente 
+		 * il while) sia stata implementata, le seguenti linee di codice sono indispensabili 
+		 * (i.e., per ciascuna istruzione java è necessario effettuare un controllo per volta,
+		 * altrimenti potrebbe esservi un match anche nel caso in cui nel commento si facesse
+		 * riferimento ad un while mentre viene implementato un if). 
+		 */
+		comRegexsList.clear();
+		codeRegexsList.clear();
+		
+		comRegexsList.add("while");
+		comRegexsList.add("finche'");
+		
+		codeRegexsList.add("while");
+		
+		if(MainWordsManipulation.checkPatterns(comRegexsList, comment, true)) {
+//				System.out.println("\t\t" + comment.getComment());
+			if(!MainWordsManipulation.checkPatterns(codeRegexsList, mb.getTextContent(), false)) {
+				saysMoreThanItDoes = true;
+			}
+		} 
 		
 		/*
 		 * Se il nome del metodo inizia con "check", controllo che il tipo restituito sia boolean, o 
@@ -230,10 +232,10 @@ public class BadMethodBehaviors {
 		 * (nè all'inizio nè alla fine della parola stessa), controllo che venga restituito qualcosa. 
 		 *  
 		 */
-		if(methodName.startsWith("check")) {
+		if(methodNameLowerCase.startsWith("check")) {
 			if(!methodReturnType.equalsIgnoreCase("boolean") && mb.getThrowedException().isEmpty())
 				saysMoreThanItDoes = true;
-		} else if(methodName.startsWith("get")) {
+		} else if(methodNameLowerCase.startsWith("get")) {
 			if(methodReturnType.equals("void"))
 				saysMoreThanItDoes = true;
 			else {
@@ -251,13 +253,28 @@ public class BadMethodBehaviors {
 					}
 				} 
 			}
-		} else if(methodName.startsWith("is")) {
+		} else if(methodNameLowerCase.startsWith("is")) {
 			if(!methodReturnType.equalsIgnoreCase("boolean"))
 				saysMoreThanItDoes = true;
-		} else if(methodName.contains("to") &&
-				(!methodName.startsWith("to") && !methodName.endsWith("to"))) {
-			if(methodReturnType.equals("void"))
-				saysMoreThanItDoes = true;
+		} else if((methodName.contains("to") || methodName.contains("To")) &&
+				(!methodNameLowerCase.startsWith("to") && !methodNameLowerCase.endsWith("to"))) {
+			if(methodReturnType.equals("void")) {
+				String tmp = "";
+				int toIndex = methodName.indexOf("to");
+				WordNetDatabase database = WordNetDatabase.getFileInstance();
+				Synset[] synsets = null;
+				for(int i = 0; i < toIndex; i++) {
+					for(int j = toIndex + 2; j < methodName.length(); j++) {
+						tmp = methodName.substring(i, j);
+						synsets = database.getSynsets(tmp);
+						if(synsets.length > 0) {
+							saysMoreThanItDoes = false;
+							break;
+						} else
+							saysMoreThanItDoes = true;
+					}
+				}
+			}
 		}
 		
 		return saysMoreThanItDoes;
@@ -277,105 +294,35 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean doesTheOpposite(Method mb) {
 		boolean doesTheOpposite = false;
-		String methodName = mb.getName().toLowerCase();
-		String methodReturnType = mb.getReturnType().getName();
-		String comment = mb.getComments().toString();
+		String metName = extractMethodName(mb.getName());
 		
-		for(String mt : methodName.split("_")) {
-			List<String> ant = MainWordsManipulation.getAntonyms(mt);
-			if(ant.size() > 0 && comment.contains(ant.get(0))) {
-				System.out.println("1. Does the opposite");
-				doesTheOpposite = true;
-			}
-			
-			return doesTheOpposite;
-		}
+		if(CommonFeature.checkCommentAntonym(metName, mb.getComments()))
+			doesTheOpposite = true;
 		
-		String tmp = "";
-		
-		boolean upperCaseFlag = false;
-		int i = 0, c = 0;
-		if(Character.isUpperCase(methodName.charAt(0)))
-			methodName = methodName.replaceFirst("" + methodName.charAt(0), "" + Character.toLowerCase(methodName.charAt(0)));
-		
-		HashMap<String, Boolean> cleanedCcomment = MainWordsManipulation.cleanComment(comment);
-		
-		WordNetDatabase database = null;
-		Synset[] synsets = null;
-
-		List<String> sugList = new ArrayList<String>();
-		int sugSize = 0;
-		int metLen = methodName.length();
-		while(i < metLen) {
-			while(i < metLen && Character.isLowerCase(methodName.charAt(i))) {
-				i++;
-			}
-			
-			if(i < (metLen - 1) && Character.isUpperCase(methodName.charAt(i))) {
-				upperCaseFlag = true;
-				if(i > 0) {
-					tmp = methodName.substring(c, i);
-					
-					database = WordNetDatabase.getFileInstance();
-					synsets = database.getSynsets(tmp);
-					
-					if(synsets.length > 0) {
-						if(MainWordsManipulation.checkAntonym(cleanedCcomment, tmp)) {
-//							System.out.println("2. Does the opposite");
-							doesTheOpposite = true;
-						}
-					} else {
-						sugList = MainWordsManipulation.cleanList(MainWordsManipulation.wordSuggestion(tmp));
-						sugSize = sugList.size(); 
-						if(sugList.size() > 0) {
-							for(int j = 0; j < sugSize; j++) {
-//								System.out.println(sugList.get(j));
-								
-								if(MainWordsManipulation.checkAntonym(cleanedCcomment, sugList.get(j))) {
-//									System.out.println("3. Does the opposite");
-									doesTheOpposite = true;
-								}
-							}
-						}
-					}
-				}
-				c = i;
-				i++;
-			}
-		}
-		
-		if(!upperCaseFlag) {
-			if(MainWordsManipulation.getSynonyms(methodName).size() > 0) {
-				if(MainWordsManipulation.checkAntonym(cleanedCcomment, tmp)) {
-//					System.out.println("4. Does the opposite");
-					doesTheOpposite = true;
-				}
-			} else {
-				for(i = 0; i < metLen; i++) {
-					for (int j = metLen; j > i; j--) {
-						if(j - i > 1) {
-							tmp = methodName.substring(i, j);
-							sugList = MainWordsManipulation.cleanList(MainWordsManipulation.wordSuggestion(tmp));
-							sugSize = sugList.size(); 
-							if(sugList.size() > 0) {
-								for(int k = 0; k < sugSize; k++) {
-//									System.out.println("parola: " + tmp + " -> " + sugList.get(k));
-									
-									if(MainWordsManipulation.checkAntonym(cleanedCcomment, sugList.get(k))) {
-//										System.out.println("5. Does the opposite\n");
-										doesTheOpposite = true;
-									}
-								}
-							} /* else {
-								System.out.println("parola: " + tmp + " -> " + "nessun suggerimento trovato");
-							} */
-						}
-					}
-				}
-			}
-		}
+		if(CommonFeature.checkTypeAntonym(mb.getName(), mb.getReturnType().getName()))
+			doesTheOpposite = true;
 		
 		return doesTheOpposite;
 	}
-	
+
+	/**
+	 * Estrae solo il nome del metodo, cancellando tutto ciò che segue la parentesi d'apertura
+	 * (parentesi compresa).
+	 * @param metName Il nome del metodo ottenuto tramite il metodo {@link Method#getName()}.
+	 * @return Solo il nome del metodo.
+	 */
+	private static String extractMethodName(String metName) {
+		int i = 0, metLen = metName.length();
+		/*
+		 * Estraggo solo il nome del metodo.
+		 */
+		while(i < metLen && metName .charAt(i) != '(') {
+			i++;
+		}
+//		System.out.println("\tNome metodo prima: " + methodName);
+		metName = metName.substring(0, i);
+//		System.out.println("\tNome metodo dopo: " + methodName);
+		
+		return metName;
+	}
 }
