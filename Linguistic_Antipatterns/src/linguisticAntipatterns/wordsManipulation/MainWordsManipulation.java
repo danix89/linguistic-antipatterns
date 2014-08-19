@@ -185,7 +185,7 @@ public class MainWordsManipulation {
 	/**
 	 * Restituisce la lista dei contrari della parola <b>word</b>.
 	 * @param word La parola per cui trovare i contrari.
-	 * @return La lista di contrari.
+	 * @return La lista di contrari se ce ne sono; una lista vuota altrimenti.
 	 */
 	public static List<String> getAntonyms(String word) {
 		if(word.length() <= 0 || word.startsWith(" "))
@@ -227,7 +227,6 @@ public class MainWordsManipulation {
 	 * contenuto il contrario di <b>word</b>: nella frase da cui è stata estrapolata 
 	 * <b>wordsList</b>, <b>word</b> risulta essere contenuta in forma non negata.</li>
 	 * </ol>
-	 * <br>
 	 * <br>
 	 * <b>Nota:</b> Per funzionare correttamente, tale metodo richiede che la {@link HashMap}
 	 * <b>wordsList</b> sia generata tramite il metodo {@link MainWordsManipulation#cleanComment(String)}.
@@ -297,6 +296,12 @@ public class MainWordsManipulation {
 	 */
 	public static HashMap<String, Boolean> cleanComment(String comment) {
 		List<String> negationRegexList = new ArrayList<String>(); 
+		
+//		System.out.println("\tCommento prima: " + comment);
+		comment = comment.replace("/", "");
+		comment = comment.replace("**", "");
+		comment = comment.replace("*", " ");
+//		System.out.println("\tCommento dopo: " + comment);
 		
 		/*
 		 * Da completare con altre forme di negazione
