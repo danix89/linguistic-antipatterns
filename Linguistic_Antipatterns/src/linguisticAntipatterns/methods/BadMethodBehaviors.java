@@ -299,7 +299,7 @@ public class BadMethodBehaviors {
 		if(CommonFeature.checkCommentAntonym(metName, mb.getComments()))
 			doesTheOpposite = true;
 		
-		if(CommonFeature.checkTypeAntonym(mb.getName(), mb.getReturnType().getName()))
+		if(CommonFeature.checkTypeAntonym(metName, mb.getReturnType().getName()))
 			doesTheOpposite = true;
 		
 		return doesTheOpposite;
