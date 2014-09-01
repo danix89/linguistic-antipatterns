@@ -35,7 +35,7 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean doesMoreThanItSays(Method mb) {
 		boolean doesMoreThanSays = false;
-		String methodName = extractMethodName(mb.getName());
+		String methodName = CommonFeature.extractMethodName(mb.getName());
 		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
 		
@@ -168,7 +168,7 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean saysMoreThanItDoes(Method mb) {
 		boolean saysMoreThanItDoes = false;
-		String methodName = extractMethodName(mb.getName());
+		String methodName = CommonFeature.extractMethodName(mb.getName());
 		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
 		String comment = "";
@@ -294,7 +294,7 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean doesTheOpposite(Method mb) {
 		boolean doesTheOpposite = false;
-		String metName = extractMethodName(mb.getName());
+		String metName = CommonFeature.extractMethodName(mb.getName());
 		
 		if(CommonFeature.checkCommentAntonym(metName, mb.getComments()))
 			doesTheOpposite = true;
@@ -303,26 +303,5 @@ public class BadMethodBehaviors {
 			doesTheOpposite = true;
 		
 		return doesTheOpposite;
-	}
-
-	/**
-	 * Estrae solo il nome del metodo, cancellando tutto ciò che segue la parentesi d'apertura
-	 * (parentesi compresa).
-	 * @param metName Il nome del metodo ottenuto tramite il metodo {@link Method#getName()}.
-	 * @return Solo il nome del metodo.
-	 */
-	private static String extractMethodName(String metName) {
-		int i = 0, metLen = metName.length();
-		/*
-		 * Estraggo solo il nome del metodo.
-		 */
-		while(i < metLen && metName .charAt(i) != '(') {
-			i++;
-		}
-//		System.out.println("\tNome metodo prima: " + methodName);
-		metName = metName.substring(0, i);
-//		System.out.println("\tNome metodo dopo: " + methodName);
-		
-		return metName;
 	}
 }
