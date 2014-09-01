@@ -230,9 +230,11 @@ public class MainWordsManipulation {
 	 * <br>
 	 * <b>Nota:</b> Per funzionare correttamente, tale metodo richiede che la {@link HashMap}
 	 * <b>wordsList</b> sia generata tramite il metodo {@link MainWordsManipulation#cleanComment(String)}.
-	 * @param wordsList
-	 * @param word
-	 * @return
+	 * @param wordsList La lista delle parole tra cui cercare eventuali contrari della parola
+	 * contenuta in <b>word</b>.
+	 * @param word La parola rispetto alla quale controllare se in <b>wordsList</b> sono 
+	 * contenuti suoi contrari.
+	 * @return <b>true</b> se in <b>wordsList</b> è contenuto almeno un contrario di <b>word</b>, <b>false</b> altrimenti.
 	 */
 	public static boolean checkAntonym(HashMap<String, Boolean> wordsList, String word) {
 		List<String> antList = new ArrayList<String>();

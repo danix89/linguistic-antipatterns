@@ -290,7 +290,6 @@ public class BadMethodBehaviors {
 	 * </ol>
 	 * @param mb Un oggetto {@link Method} contenente il metodo da esaminare.
 	 * @return <b>true</b> se il metodo fa l'opposto di quello che dice, <b>false</b> altrimenti.
-	 * @throws Exception 
 	 */
 	public static boolean doesTheOpposite(Method mb) {
 		boolean doesTheOpposite = false;

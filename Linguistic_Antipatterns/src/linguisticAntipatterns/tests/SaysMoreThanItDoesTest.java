@@ -20,7 +20,7 @@ import sie.db.entity.SType;
  */
 public class SaysMoreThanItDoesTest {
 	/**
-	 * Test method for {@link BadMethodBehaviors#saysMoreThanItDoes(Method mb)}.
+	 * Test method for {@link BadMethodBehaviors#saysMoreThanItDoes(Method)}.
 	 */
 	@Test
 	public void testSaysMoreThanItDoes() {

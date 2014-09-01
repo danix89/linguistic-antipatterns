@@ -52,7 +52,7 @@ public class CommonFeature {
 	 * Controlla se il nome del metodo o della variabile contiene parole che corrispondono 
 	 * al contrario di una delle parole estrapolate -rispettivamente - dal nome del tipo di 
 	 * ritorno o della variabile. 
-	 * @param typeName Il nome del metodo o della variabile.
+	 * @param name Il nome del metodo o della variabile.
 	 * @param typeName Il nome del tipo di ritorno o della variabile. 
 	 * @return <b>true</b> se <b>name</b> contiene almeno un contrario di una delle parole 
 	 * estrapolate da <b>typeName</b>, <b>false</b> altrimenti.

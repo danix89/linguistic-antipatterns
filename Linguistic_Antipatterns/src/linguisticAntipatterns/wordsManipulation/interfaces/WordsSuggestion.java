@@ -19,6 +19,7 @@ public interface WordsSuggestion {
 	 * <li>booking</li>
 	 * <li>bonprix</li>
 	 * <li>bologna</li>
+	 * </ol>
 	 * @param str Una stringa che rappresenta l'insieme di caratteri rispetto ad i quali
 	 * trovare una serie di suggerimenti.
 	 * @return La lista di parole associate all'insieme di caratteri <b>cset</b>. Nel caso 
