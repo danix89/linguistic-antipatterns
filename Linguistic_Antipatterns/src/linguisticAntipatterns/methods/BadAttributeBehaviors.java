@@ -88,8 +88,16 @@ public class BadAttributeBehaviors {
 	 * altrimenti.
 	 */
 	public static boolean containsTheOpposite(Field f) {
-
-		return false;
+		boolean containsTheOpposite = false;
+		String fieldName = f.getName();
+		
+		if(CommonFeature.checkCommentAntonym(fieldName, f.getComments()))
+			containsTheOpposite = true;
+		
+		if(CommonFeature.checkTypeAntonym(fieldName, f.getType().getName()))
+			containsTheOpposite = true;
+		
+		return containsTheOpposite;
 	}
 	
 }
