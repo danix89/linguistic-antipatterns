@@ -23,6 +23,10 @@ import org.xml.sax.SAXException;
  *
  */
 public class SAXWordsSuggestion implements WordsSuggestion {
+	private static final int MAX_QUERIES = 100;
+	private static final long SLEEP_TIME = 60000;
+
+	private static int conectionCounter = 0;
 	private static String googleSuggestQueryURL = "http://suggestqueries.google.com/complete/search?client=toolbar&q=";
 
 	/**
@@ -51,7 +55,20 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 		SAXParserFactory parserFactor = SAXParserFactory.newInstance();
 		SAXAutocompleteHandler handler = null;
 		SAXParser parser = null;
+		
 		try {
+			/**
+			 * Se sono state eseguite più di MAX_QUERIES attendo per un minuto, quindi riprendo 
+			 * l'esecuzione. 
+			 */
+			if(conectionCounter >= MAX_QUERIES) {
+				System.out.println("Maximum allowed queries number reached. Wait for " 
+						+ SLEEP_TIME/60000 + " minute");
+				Thread.sleep(SLEEP_TIME);
+				
+				conectionCounter = 0;
+			}
+			
 			parser = parserFactor.newSAXParser();
 			handler = new SAXAutocompleteHandler();
 			if(str != null && str.length() != 0) {
@@ -62,6 +79,7 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 				 * usata per il file XML. 
 				 */
 				Reader isr = new InputStreamReader(url.openStream());
+				conectionCounter++;
 				InputSource is = new InputSource();
 				is.setCharacterStream(isr);
 				parser.parse(is, handler);
@@ -70,6 +88,9 @@ public class SAXWordsSuggestion implements WordsSuggestion {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
