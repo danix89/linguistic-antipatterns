@@ -31,16 +31,16 @@ public class CommonFeature {
 			CodeComment cc = (CodeComment) iterator.next();
 			comment = comment.concat(cc.getComment());
 		}
+			
+		nameWords = getAllWords(name);
+		cleanedComment = MainWordsManipulation.cleanComment(comment);
 		
 		/*
 		 * Se non ci sono commenti - ovviamente - non può esserci nessun anti-pattern relativo 
 		 * ai commenti.
 		 */
-		if(comment.isEmpty())
+		if(cleanedComment.isEmpty())
 			return false;
-			
-		nameWords = getAllWords(name);
-		cleanedComment = MainWordsManipulation.cleanComment(comment);
 		
 		if(checkAntonym(nameWords, cleanedComment))
 			return true;
@@ -209,15 +209,26 @@ public class CommonFeature {
 	 * @return Solo il nome del tipo.
 	 */
 	public static String extractTypeName(String typeName) {
-		int i = 0, metLen = typeName.length();
+		int i = 0, j = 0, metLen = typeName.length();
+		
 		/*
-		 * Estraggo solo il nome del metodo.
+		 * Estraggo solo il nome del tipo.
 		 */
-		while(i < metLen && (typeName .charAt(i) != '[' && typeName .charAt(i) != '<')) {
+		while(i < metLen && (typeName.charAt(i) != '[' && typeName.charAt(i) != '<')) {
 			i++;
+			
+			/*
+			 * Gestisco il caso in cui il tipo dell'oggetto appartenga ad una classe interna
+			 * (i.e., definita all'interno di un'altra classe) e, quindi, il nome è strutturato
+			 * nel modo seguente: 
+			 * <NomeClasseEsterna>.<NomeClasseInterna>. 
+			 */
+			if(i < metLen && typeName.charAt(i) == '.')
+				j = i;
 		}
+		
 //		System.out.println("\tNome metodo prima: " + typeName);
-		typeName = typeName.substring(0, i);
+		typeName = typeName.substring(j, i);
 //		System.out.println("\tNome metodo dopo: " + typeName);
 		
 		return typeName;
