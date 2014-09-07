@@ -29,51 +29,67 @@ public class DoesTheOppositeTest {
 	
 	CodeComment cc11 = new CodeComment();
 	cc11.setComment("/** "
-			+ "@return int"
+			+ "enable the object"
 			+ "*/");
-	
-	
+		
 	
 	SType cbool=new SType();
 	cbool.setName("boolean");
 	SType cstr=new SType();
 	cstr.setName("String");
 	SType ccontrol=new SType();
-	ccontrol.setName("ControlEnableState");
+	ccontrol.setName("close");
+	SType cenable=new SType();
+	cenable.setName("inactiveState");
+	SType cint=new SType();
+	cint.setName("int");
 	
 	/**
 	 * TC 3.1.01
 	 */
 	
-	Method m18=new Method("getInt");
-	m18.setReturnType(cstr);
-	comments.add(cc10);
-	m18.setComments(comments);
-	assertEquals(BadMethodBehaviors.doesTheOpposite(m18),true);
-	comments.clear();
-	
-	/**
-	 * TC 3.1.02
-	 */
-	
-	Method m19=new Method("disable");
-	m19.setReturnType(ccontrol);
-	comments.add(cc10);
+	Method m19=new Method("disableObject");
+	m19.setReturnType(cenable);
+	comments.add(cc11);
 	m19.setComments(comments);
 	assertEquals(BadMethodBehaviors.doesTheOpposite(m19),true);
 	comments.clear();
 	
 	
 	/**
-	 * TC 3.1.04
+	 * TC 3.1.02
 	 */
 	
-	Method m20=new Method("getValue");
-	m20.setReturnType(cbool);
+	Method m20=new Method("activeDB");
+	m20.setReturnType(cenable);
 	comments.add(cc11);
 	m20.setComments(comments);
 	assertEquals(BadMethodBehaviors.doesTheOpposite(m20),true);
 	comments.clear();
+	
+	/**
+	 *  TC 3.1.03
+	 */
+	
+	Method m21=new Method("activeDB");
+	m21.setReturnType(cbool);
+	comments.add(cc11);
+	m21.setComments(comments);
+	assertEquals(BadMethodBehaviors.doesTheOpposite(m21),false);
+	comments.clear();
+	
+	/**
+	 * TC 3.1.04 Il test ha successo perchè non è stata implementata la funzionalità
+	 */
+	/*
+	Method m22=new Method("getString");
+	m22.setReturnType(cint);
+	comments.add(cc11);
+	m22.setComments(comments);
+	assertEquals(BadMethodBehaviors.doesTheOpposite(m22),true);
+	comments.clear();
+	*/
+	
 	
 	
 	}

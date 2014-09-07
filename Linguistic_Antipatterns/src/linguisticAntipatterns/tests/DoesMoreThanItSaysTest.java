@@ -46,6 +46,7 @@ public class DoesMoreThanItSaysTest {
 		cvoid.setName("void");
 		SType ccoll=new SType();
 		ccoll.setName("Collection");
+		
 		/**
 		 * TC 2.1.02
 		 */
@@ -63,7 +64,7 @@ public class DoesMoreThanItSaysTest {
 		 */
 		
 		Method m2=new Method("getSomething");
-		m2.setReturnType(cvoid);
+		m2.setReturnType(cint);
 		comments.add(cc1);
 		m2.setComments(comments);
 		m2.setTextContent(code1);
