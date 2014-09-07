@@ -19,18 +19,32 @@ public class BadAttributeBehaviors {
 	 * @return <b>true</b> se il metodo contiene l'opposto di quello che dice, <b>false</b> altrimenti.
 	 */
 	public static boolean containsMoreThanItSays(Field f) {
-		boolean containsMoreThanItSays = false;
+		boolean containsMoreThanItSays = false, listFlag = false;
 		String attributeName = f.getName().toLowerCase();
 		String attributeType = f.getType().getName();
-
+		String attributeTypeLowerCase = f.getType().getName().toLowerCase();
+		
 		/*
 		 * Se il tipo di un attributo è una lista di oggetti, controllo che il nome 
 		 * dell'attributo suggerisca che contiene una collezione di oggetti, o un unico oggetto.
 		 */
-		Set<SType> superClasses = f.getType().getSuperclasses();
-		if(superClasses != null && (superClasses.contains("Collection")
-				|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
-			
+		if(attributeTypeLowerCase.contains("collection")
+				|| attributeTypeLowerCase.contains("map") 
+				|| attributeTypeLowerCase.contains("array"))
+			listFlag = true;
+		else {
+			Set<SType> superClasses = f.getType().getSuperclasses();
+			if(superClasses != null) {
+				for(SType stype : superClasses) {
+					String st = stype.getName().toLowerCase();
+					if(stype != null && (st.contains("collection")
+							|| st.contains("map") || st.contains("array"))) {
+						listFlag = true;
+					}
+				}
+			}
+		} 
+		if(listFlag) {
 			/*
 			 * Il nome dell'attributo deve terminare per 's' (i.e. plurale) o, comunque, deve 
 			 * contenere un termine che suggerisca una lista di oggetti. 
@@ -39,8 +53,8 @@ public class BadAttributeBehaviors {
 					!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, attributeName, false)) {
 				containsMoreThanItSays = true;
 			}
-		} 
-
+		}
+		
 		if(attributeName.startsWith("is") && !attributeType.equalsIgnoreCase("boolean"))
 			containsMoreThanItSays = true;
 
