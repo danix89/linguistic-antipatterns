@@ -35,7 +35,7 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean doesMoreThanItSays(Method mb) {
 		boolean doesMoreThanSays = false;
-		String methodName = CommonFeature.extractMethodName(mb.getName());
+		String methodName = extractMethodName(mb.getName());
 		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
 		
@@ -123,21 +123,23 @@ public class BadMethodBehaviors {
 		}
 		
 		
+		
+		
 		/*
 		 * Se il metodo restituisce una lista di oggetti, controllo se il nome del 
 		 * metodo suggerisce che venga restituita una lista di oggetti, o un unico oggetto.
 		 */
-		Set<SType> superClasses = mb.getReturnType().getSuperclasses();
-		if(superClasses != null && (superClasses.contains("Collection")
-				|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
+		//MODIFICATO
+		SType superClasses = mb.getReturnType();
+		if(superClasses != null && (superClasses.getName().equals("Collection")
+				|| superClasses.getName().equals("Map") || superClasses.getName().equals("Arrays"))) {
 			
 			/*
 			 * Il metodo deve terminare per 's' (i.e. plurale) o, comunque, deve 
 			 * contenere un termine che suggerisca, come tipo di ritorno, una lista
 			 * di oggetti. 
 			 */
-			if(!methodName.endsWith("s") && 
-					!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, methodName, false)) {
+			if(!methodName.endsWith("s")) {
 //					System.out.println("\tIl nome del metodo " + methodName 
 //							+ " suggerisce che debba essere restituito un unico oggetto, mentre il "
 //							+ "tipo di ritorno è una lista di oggetti.");
@@ -168,7 +170,7 @@ public class BadMethodBehaviors {
 	 */
 	public static boolean saysMoreThanItDoes(Method mb) {
 		boolean saysMoreThanItDoes = false;
-		String methodName = CommonFeature.extractMethodName(mb.getName());
+		String methodName = extractMethodName(mb.getName());
 		String methodNameLowerCase = methodName.toLowerCase();
 		String methodReturnType = mb.getReturnType().getName();
 		String comment = "";
@@ -232,9 +234,10 @@ public class BadMethodBehaviors {
 		 * (nè all'inizio nè alla fine della parola stessa), controllo che venga restituito qualcosa. 
 		 *  
 		 */
+		//MODIFICATO da getThrowedException.isEmpty() a getThrowedException==null
 		if(methodNameLowerCase.startsWith("check")) {
-			if(!methodReturnType.equalsIgnoreCase("boolean") && mb.getThrowedException().isEmpty())
-				saysMoreThanItDoes = true;
+			if(!methodReturnType.equalsIgnoreCase("boolean") && mb.getThrowedException()==null)
+				saysMoreThanItDoes = true;			
 		} else if(methodNameLowerCase.startsWith("get")) {
 			if(methodReturnType.equals("void"))
 				saysMoreThanItDoes = true;
@@ -244,13 +247,14 @@ public class BadMethodBehaviors {
 				 * contiene un termine che suggerisce, come tipo di ritorno, una lista
 				 * di oggetti, controllo che restituisca effettivamente una collezione di oggetti.
 				 */
-				if(!methodName.endsWith("s") && 
+				// MODIFICATO
+				if(methodName.endsWith("s") && 
 						!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, methodName, false)) {
-					Set<SType> superClasses = mb.getReturnType().getSuperclasses();
-					if(superClasses != null && (superClasses.contains("Collection")
-							|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
-						saysMoreThanItDoes = true;
-					}
+					SType type = mb.getReturnType();
+					if(type.getName().startsWith("List") || type.getName().startsWith("Map"))
+						saysMoreThanItDoes = false;
+					else
+						saysMoreThanItDoes= true;
 				} 
 			}
 		} else if(methodNameLowerCase.startsWith("is")) {
@@ -290,10 +294,11 @@ public class BadMethodBehaviors {
 	 * </ol>
 	 * @param mb Un oggetto {@link Method} contenente il metodo da esaminare.
 	 * @return <b>true</b> se il metodo fa l'opposto di quello che dice, <b>false</b> altrimenti.
+	 * @throws Exception 
 	 */
 	public static boolean doesTheOpposite(Method mb) {
 		boolean doesTheOpposite = false;
-		String metName = CommonFeature.extractMethodName(mb.getName());
+		String metName = extractMethodName(mb.getName());
 		
 		if(CommonFeature.checkCommentAntonym(metName, mb.getComments()))
 			doesTheOpposite = true;
@@ -302,5 +307,26 @@ public class BadMethodBehaviors {
 			doesTheOpposite = true;
 		
 		return doesTheOpposite;
+	}
+
+	/**
+	 * Estrae solo il nome del metodo, cancellando tutto ciò che segue la parentesi d'apertura
+	 * (parentesi compresa).
+	 * @param metName Il nome del metodo ottenuto tramite il metodo {@link Method#getName()}.
+	 * @return Solo il nome del metodo.
+	 */
+	private static String extractMethodName(String metName) {
+		int i = 0, metLen = metName.length();
+		/*
+		 * Estraggo solo il nome del metodo.
+		 */
+		while(i < metLen && metName .charAt(i) != '(') {
+			i++;
+		}
+//		System.out.println("\tNome metodo prima: " + methodName);
+		metName = metName.substring(0, i);
+//		System.out.println("\tNome metodo dopo: " + methodName);
+		
+		return metName;
 	}
 }
