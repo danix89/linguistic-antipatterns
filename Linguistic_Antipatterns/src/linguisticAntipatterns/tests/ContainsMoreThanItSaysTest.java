@@ -2,12 +2,15 @@ package linguisticAntipatterns.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import linguisticAntipatterns.methods.BadAttributeBehaviors;
 
 import org.junit.Test;
 
-import sie.db.entity.SType;
 import sie.db.entity.Field;
+import sie.db.entity.SType;
 
 
 public class ContainsMoreThanItSaysTest {
@@ -15,9 +18,19 @@ public class ContainsMoreThanItSaysTest {
 	@Test
 	public void testContainsMoreThanItSays() {
 		
+		SType abcol=new SType();
+		abcol.setName("AbstractCollection");
+		
+		SType ablist=new SType();
+		ablist.setName("AbstractList");
+		
 		SType cvector=new SType();
 		cvector.setName("Vector");
-
+		Set<SType> setlist = new HashSet<SType>();
+		setlist.add(abcol);
+		setlist.add(ablist);
+		cvector.setSuperclasses(setlist);
+		
 		SType ccoll=new SType();
 		ccoll.setName("Collection");
 		
