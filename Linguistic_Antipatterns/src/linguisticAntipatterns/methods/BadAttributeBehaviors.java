@@ -22,7 +22,7 @@ public class BadAttributeBehaviors {
 		boolean containsMoreThanItSays = false, listFlag = false;
 		String attributeName = f.getName().toLowerCase();
 		String attributeType = f.getType().getName();
-		String attributeTypeLowerCase = f.getType().getName().toLowerCase();
+		String attributeTypeLowerCase = attributeType.toLowerCase();
 		
 		/*
 		 * Se il tipo di un attributo è una lista di oggetti, controllo che il nome 
@@ -50,7 +50,7 @@ public class BadAttributeBehaviors {
 			 * contenere un termine che suggerisca una lista di oggetti. 
 			 */
 			if(!attributeName.endsWith("s") && 
-					!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, attributeName, false)) {
+					!MainWordsManipulation.checkPatterns(MainWordsManipulation.getCollectionRegex(), attributeName, false)) {
 				containsMoreThanItSays = true;
 			}
 		}
@@ -69,21 +69,34 @@ public class BadAttributeBehaviors {
 	 * @return <b>true</b> se il metodo dice l'opposto di quello che contiene, <b>false</b> altrimenti.
 	 */
 	public static boolean saysMoreThanItContains(Field f) {
-		boolean saysMoreThanItContains = false;
+		boolean saysMoreThanItContains = false, listFlag = true;
 		String attributeName = f.getName().toLowerCase();
-
+		String attributeTypeLowerCase = f.getType().getName().toLowerCase();
+		
 		/*
 		 * Se il nome dell'attributo termina per 's' (i.e. plurale) o, comunque, 
 		 * contiene un termine che suggerisce una lista
 		 * di oggetti, controllo che contenga effettivamente una collezione di oggetti.
 		 */
-		if(!attributeName.endsWith("s") && 
-				!MainWordsManipulation.checkPattern(MainWordsManipulation.collectionRegex, attributeName, false)) {
-			Set<SType> superClasses = f.getType().getSuperclasses();
-			if(superClasses != null && (superClasses.contains("Collection")
-					|| superClasses.contains("Map") || superClasses.contains("Arrays"))) {
-				saysMoreThanItContains = true;
+		if(attributeName.endsWith("s") && 
+				!MainWordsManipulation.checkPatterns(MainWordsManipulation.getCollectionRegex(), attributeName, false)) {
+			if(!MainWordsManipulation.checkPatterns(MainWordsManipulation.getCollectionRegex(), attributeTypeLowerCase, false)) {
+				listFlag  = false;
+				saysMoreThanItContains= true;
 			}
+			if(!listFlag) {
+				Set<SType> superClasses = f.getType().getSuperclasses();
+				if(superClasses != null) {
+					for(SType stype : superClasses) {
+						String st = stype.getName().toLowerCase();
+						if(stype != null && (st.contains("collection")
+								|| st.contains("map") || st.contains("array"))) {
+							saysMoreThanItContains = false;
+						} else 
+							saysMoreThanItContains = true;
+					}
+				}
+			} 
 		} 
 
 		return saysMoreThanItContains;

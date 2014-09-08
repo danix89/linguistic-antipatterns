@@ -20,8 +20,25 @@ import edu.smu.tspell.wordnet.WordSense;
  */
 public class MainWordsManipulation {
 	private static WordsSuggestion ws = null;
-	public static final String collectionRegex = "list | collection | map | table"; //da completare con altri nomi che suggeriscano una collezione di oggetti	
 
+	/**
+	 * Restituisce una lista di parole che possono essere usate per suggerire una collezione 
+	 * di oggetti.
+	 * @return La lista di parole.
+	 */
+	public static List<String> getCollectionRegex() {
+		ArrayList<String> collectionRegex = new ArrayList<String>();
+		//da completare con altri nomi che suggeriscano una collezione di oggetti
+		collectionRegex.add("collection");
+		collectionRegex.add("list");
+		collectionRegex.add("map");
+		collectionRegex.add("array");
+		collectionRegex.add("vector");
+		collectionRegex.add("table");
+		
+		return collectionRegex;
+	}
+	
 	/**
 	 * Setta l'algoritmo di ricerca delle parole da utilizzare.
 	 * @param algorithm Un algoritmo di ricerca che implementi l'interfaccia 

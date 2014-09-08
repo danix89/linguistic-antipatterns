@@ -191,7 +191,7 @@ public class CommonFeature {
 		/*
 		 * Estraggo solo il nome del metodo.
 		 */
-		while(i < metLen && metName .charAt(i) != '(') {
+		while(i < metLen && metName.charAt(i) != '(') {
 			i++;
 		}
 //		System.out.println("\tNome metodo prima: " + methodName);
