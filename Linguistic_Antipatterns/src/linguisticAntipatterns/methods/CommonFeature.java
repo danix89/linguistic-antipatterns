@@ -27,9 +27,11 @@ public class CommonFeature {
 		String comment = "";
 		HashMap<String, Boolean> nameWords = null, cleanedComment = null;
 		
-		for (Iterator<CodeComment> iterator = commentsSet.iterator(); iterator.hasNext();) {
-			CodeComment cc = (CodeComment) iterator.next();
-			comment = comment.concat(cc.getComment());
+		if(commentsSet != null) {
+			for (Iterator<CodeComment> iterator = commentsSet.iterator(); iterator.hasNext();) {
+				CodeComment cc = (CodeComment) iterator.next();
+				comment = comment.concat(cc.getComment());
+			}
 		}
 			
 		nameWords = getAllWords(name);

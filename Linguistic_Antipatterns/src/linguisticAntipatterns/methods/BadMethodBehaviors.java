@@ -181,9 +181,11 @@ public class BadMethodBehaviors {
 		String methodReturnTypeLowerCase = methodReturnType.toLowerCase();
 		String comment = "";
 		
-		for (Iterator<CodeComment> iterator = mb.getComments().iterator(); iterator.hasNext();) {
-			CodeComment cc = (CodeComment) iterator.next();
-			comment = comment.concat(cc.getComment());
+		if(mb.getComments() != null) {
+			for (Iterator<CodeComment> iterator = mb.getComments().iterator(); iterator.hasNext();) {
+				CodeComment cc = (CodeComment) iterator.next();
+				comment = comment.concat(cc.getComment());
+			}
 		}
 		
 		/*
