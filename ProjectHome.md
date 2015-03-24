@@ -1,0 +1,1 @@
+The scope of this project is the creation of a new module (for the localization of the linguistic antipatterns) for the framework RepoMiner (a framework that handles the calculation of various metrics, regarding the java code, and that offers a tool for the problem of versioning and of the bug tracking.
